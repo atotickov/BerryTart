@@ -34,14 +34,14 @@ export TOOLS="/nfs/home/atotikov/tools"
 
 print_usage() {
         echo "Correct variant calling:"
-        echo "  -w     full path to genome assembly .syn .whitelist .orderedlist .len files (without '/')."
+        echo "  -w      full path to genome assembly .syn .whitelist .orderedlist .len files (without '/')."
         echo "  -f      genome assembly file in .fasta format (with .fasta file there should be a .fasta.fai file)."
         echo "  -b      full path to alignment files in .bam format (with .bam file there should be a .bam.bai file)."
         echo "  -p      ploidy file."
         echo "  -s      sample file."
         echo "  -v      output vcf file prefix (example, musput.sub12.correct)."
         echo "  -m      full path to mask files in .bed format (without '/')."
-        echo "  -o     species name ('Mustela putorius')."
+        echo "  -o      species name ('Mustela putorius')."
 }
 
 while getopts 'w:f:b:p:s:v:m:o:' flag; do
@@ -235,6 +235,6 @@ for new_file in "${new_files[@]}"; do
   fi
 done
 
-python3 $TOOLS/Biocrutch/scripts/Visualization/draw_violinplots.py -i $output_file -o $output_file -w 1000000 --figure_height 9 --yticklist 0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7 --title "${species}" --ylabel "Гетерозиготные SNP/тыс п.н." --figure_width_per_sample 0.7 --rotation 70 --ymin 0 --ymax 7 --font-size 14 --figure_grid
+python3 $TOOLS/Biocrutch/scripts/Visualization/draw_violinplots.py -i ${prefix_vcf}.violinplot.1mb.tab -o ${prefix_vcf}.violinplot.1mb.tab -w 1000000 --figure_height 9 --yticklist 0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7 --title "${species}" --ylabel "Гетерозиготные SNP/тыс п.н." --figure_width_per_sample 0.7 --rotation 70 --ymin 0 --ymax 7 --font-size 14 --figure_grid
 
 echo  $(date)" | Stage 7 | Visualization of genetic variants density in violin plot | Done"

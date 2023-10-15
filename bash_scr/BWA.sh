@@ -43,13 +43,11 @@ assembly=""
 samples=()
 fq_path=""
 
-while getopts 'a:s:f:l:w:' flag; do
+while getopts 'a:s:f:' flag; do
         case "${flag}" in
                 a) assembly="${OPTARG}" ;;
                 s) IFS=' ' read -ra samples <<< "${OPTARG}" ;;
                 f) fq_path="${OPTARG}" ;;
-                l) assembly_len="${OPTARG}" ;;
-                w) assembly_whitelist="${OPTARG}" ;;
                 *) print_usage
                         exit 1 ;;
         esac

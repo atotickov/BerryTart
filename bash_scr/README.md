@@ -6,5 +6,8 @@ The script runs the following repeat search programs WindowMasker, TRF and Repea
 ### BWA.sh | Alignment
 The script to perform alignments, with further plotting on heat maps.
 
+### PAR.sh | Pseudoautosomal region
+Computation of pseudoautosomal region coordinates.
+
 ### CVC.sh | Correct Variant Calling
 The script to perform correct genetic variant calling, with further plotting on heat maps and vaolin plots.

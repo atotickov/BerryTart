@@ -1,6 +1,8 @@
+#bash PAR.sh -i "mosdepth.SB6536sub12.per-base.bed.gz mosdepth.SB8055sub12.per-base.bed.gz mosdepth.SRR1508214sub12.per-base.bed.gz mosdepth.SRR1508215sub12.per-base.bed.gz mosdepth.SRR1508749sub12.per-base.bed.gz" -s NC_081575.1 -w 10000 2>&1 | tee PAR.info
+
+
 #!/bin/bash
 
-#bash PAR.sh -i "mosdepth.SB6536sub12.per-base.bed.gz mosdepth.SB8055sub12.per-base.bed.gz mosdepth.SRR1508214sub12.per-base.bed.gz mosdepth.SRR1508215sub12.per-base.bed.gz mosdepth.SRR1508749sub12.per-base.bed.gz" -s NC_081575.1 -w 10000 2>&1 | tee PAR.info
 export TOOLS="/nfs/home/atotikov/tools/"
 
 print_usage() {

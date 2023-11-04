@@ -1,16 +1,6 @@
 #!/bin/bash
 
-# ------------------------------------------------------------------------
-# https://github.com/Dfam-consortium/TETools
-# conda create -n TETools -c conda-forge singularity pigz
-# conda activate TETools
-# singularity pull dfam-tetools-latest.sif docker://dfam/tetools:latest
-# srun --cpus-per-task=32 --mem=256G --time=150:00:00 -w nd-1 --pty bash
-# conda activate TETools
-# bash WTR.sh -i 1.fasta 2.fasta 3.fasta 4.fasta 2>&1 | tee WTR.log
-# ------------------------------------------------------------------------
-
-export PATH=/path/to/samtools-1.18/bin:/path/to/windowmasker-1.0.0:/path/to/Biocrutch/scripts/RepeatMasking:/path/to/bedtools-2.31.0/bin:${PATH}
+export PATH=/path/to/samtools-1.18/bin:/path/to/windowmasker-1.0.0:/path/to/Biocrutch/scripts/RepeatMasking:/path/to/BerryTart/python_scr:/path/to/bedtools-2.31.0/bin:${PATH}
 
 if [ "$1" != "-i" ]; then
         echo "Usage: $0 -i 1.fasta 2.fasta 3.fasta ..."
@@ -54,10 +44,23 @@ for sample in "$@"; do
         mv ../${sample} .
     
         echo $(date)" | Step (3/5) | TRF"
-        singularity run --bind $(pwd) --pwd $(pwd) ../../dfam-tetools-latest.sif trf ${sample} 2 7 7 80 10 50 500 -d -h
-        mv ${sample}.2.7.7.80.10.50.500.dat ${sample_prefix}.2.7.7.80.10.50.500.dat
-        TRF.py -i ${sample_prefix}.2.7.7.80.10.50.500.dat -o ${sample_prefix}.2.7.7.80.10.50.500.dat
-        pigz -p 32 ${sample_prefix}.2.7.7.80.10.50.500.dat
+        
+        # TRF застрянет в длинной центромерной области. Если нужно идентифицировать тандемный повтор, особенно в сборке T2T, нужно установить параметр -l с высоким значением, например -l 6
+        # Параметры:
+                # Match (matching weight): 2 
+                # Mismatch (mismatching penalty): 7 
+                # Delta (indel penalty): 7 
+                # PM (match probability): 80 
+                # PI (indel probability): 10 
+                # Minscore (minimum alignment score): 50 
+                # MaxPeriod (maximum period size): 2000 
+                # -l (maximum TR length expected (in millions, eg, -l 3 or -l=3 for 3 million)): 10
+
+        singularity run --bind $(pwd) --pwd $(pwd) ../../dfam-tetools-latest.sif trf ${sample} 2 7 7 80 10 50 2000 -l 10 -d -h
+        mv ${sample}.2.7.7.80.10.50.2000.dat ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat
+        TRF.py -i ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat -o ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat
+        pigz -p 32 ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat
+        GFF_to_TAB.py ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat.gff.gz ${sample_prefix}.2.7.7.80.10.50.2000.l10.dat.gff.tab
         echo $(date)" | Step (3/5) | TRF | Done"; echo;
     
         mv ${sample} ../
@@ -78,7 +81,7 @@ for sample in "$@"; do
         cd ../
     
         echo $(date)" | Step (5/5) | Merging and sorting GFFs, masking repeats in ${sample} file"
-        zcat TRF/${sample_prefix}.2.7.7.80.10.50.500.dat.gff.gz RepeatMasker/${sample_prefix}.out.gff.gz WindowMasker/${sample_prefix}.interval.gff.gz | sort -k1,1 -k4,4n -k5,5n | gzip > ${sample_prefix}.trf.repeatmasker.windowmasker.gff.gz
+        zcat TRF/${sample_prefix}.2.7.7.80.10.50.2000.l10.dat.gff.gz RepeatMasker/${sample_prefix}.out.gff.gz WindowMasker/${sample_prefix}.interval.gff.gz | sort -k1,1 -k4,4n -k5,5n | gzip > ${sample_prefix}.trf.repeatmasker.windowmasker.gff.gz
         bedtools maskfasta -soft -bed ${sample_prefix}.trf.repeatmasker.windowmasker.gff.gz -fi ${sample} -fo ${sample_prefix}.masked.fasta && gzip ${sample_prefix}.masked.fasta
         echo $(date)" | Step (5/5) | Merging and sorting GFFs, masking repeats in ${sample} file | Done"
     
@@ -86,3 +89,16 @@ for sample in "$@"; do
     
         cd ../
 done
+
+
+
+
+# ------------------------------------------------------------------------
+# https://github.com/Dfam-consortium/TETools
+# conda create -n TETools -c conda-forge singularity pigz
+# conda activate TETools
+# singularity pull dfam-tetools-latest.sif docker://dfam/tetools:latest
+# srun --cpus-per-task=32 --mem=256G --time=150:00:00 -w nd-1 --pty bash
+# conda activate TETools
+# bash WTR.sh -i 1.fasta 2.fasta 3.fasta 4.fasta 2>&1 | tee WTR.log
+# ------------------------------------------------------------------------

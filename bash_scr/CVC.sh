@@ -1,36 +1,6 @@
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------
-#sbatch -w orthrus-1 CVC_slurm.sh
-
-# Содержимое CVC_slurm.sh:
-
-##!/bin/bash -i
-##SBATCH --job-name=musput                                               # Job name
-##SBATCH --mail-type=END                                                 # Mail events
-##SBATCH --mail-user=a.totickov1@gmail.com                               # Where to send mail
-##SBATCH --cpus-per-task=32                                              # Number of CPU cores per task (max 32)
-##SBATCH --mem=256gb                                                     # Job memory request (max 256gb)
-##SBATCH --time=150:00:00                                                # Time limit hrs:min:sec
-##SBATCH --output=/path/to/varcall/logs/CVC_slurm.log
-##SBATCH --error=/path/to/varcall/logs/CVC_slurm.err
-#squeue; hostname; date;
-
-#conda activate varcall
-
-#cd /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/; pwd;
-
-#bash CVC.sh -w /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/assembly -f /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/assembly/mustela_putorius.ragtag.fasta -b /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/alignment/ -p /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/ploidy.sub12.file -s /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/sample.sub12.file -v musput.sub12.correct -m /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/TESTS/masks -o 'Mustela putorius' 2>&1 | tee logs/CVC.info
-
-#bash CVC_violinplot.sh -s /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/sample.sub12.file -v musput.sub12.correct -o 'Mustela putorius' 2>&1 | tee logs/CVC_violinplot.info
-
-#date;
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Содержимое CVC.sh:
-
 #!/bin/bash
 
-export PATH=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/bcftools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/samtools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/bedtools-2.31.0/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/vcftools-0.1.16/bin:${PATH}
+export PATH=/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/bcftools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/samtools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/bedtools-2.31.0/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/vcftools-0.1.16/bin:${PATH}
 export TMPDIR=/mnt/tank/scratch/skliver/common/mustelidae/atotik/;
 export TOOLS="/nfs/home/atotikov/tools"
 
@@ -117,27 +87,27 @@ for filtered_masked in $(cat samples.filtered.masked.txt); do
         echo "Sample ${filtered_masked%%.*}"
 
         echo "Step 1/6 | Indel separation";
-        bcftools filter --threads 32 -i  'TYPE="indel"' -O z -o ${filtered_masked%.*}.indel.vcf.gz ${filtered_masked};
+        bcftools filter --threads 32 -i 'TYPE="indel"' -O z -o ${filtered_masked%.*}.indel.vcf.gz ${filtered_masked};
         echo ${filtered_masked%.*}.indel.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Step 2/6 | Snp separation";
-        bcftools filter --threads 32 -i  'TYPE="snp"' -O z -o ${filtered_masked%.*}.snp.vcf.gz ${filtered_masked};
+        bcftools filter --threads 32 -i 'TYPE="snp"' -O z -o ${filtered_masked%.*}.snp.vcf.gz ${filtered_masked};
         echo ${filtered_masked%.*}.snp.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Step 3/6 | Hetero indel variants separation"
-        bcftools filter --threads 32 -i 'FMT/GT = "het"' -O z -o ${filtered_masked%.*}.indel.hetero.vcf.gz ${filtered_masked%.*}.indel.vcf.gz;
+        bcftools filter --threads 32 -i 'FMT/GT="het"' -O z -o ${filtered_masked%.*}.indel.hetero.vcf.gz ${filtered_masked%.*}.indel.vcf.gz;
         echo ${filtered_masked%.*}.indel.hetero.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Step 4/6 | Hetero snp variants separation"
-        bcftools filter --threads 32 -i 'FMT/GT = "het"' -O z -o ${filtered_masked%.*}.snp.hetero.vcf.gz ${filtered_masked%.*}.snp.vcf.gz;
+        bcftools filter --threads 32 -i 'FMT/GT="het"' -O z -o ${filtered_masked%.*}.snp.hetero.vcf.gz ${filtered_masked%.*}.snp.vcf.gz;
         echo ${filtered_masked%.*}.snp.hetero.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Step 5/6 | Homo indel variants separation"
-        bcftools filter --threads 32 -i 'FMT/GT = "hom"' -O z -o ${filtered_masked%.*}.indel.homo.vcf.gz ${filtered_masked%.*}.indel.vcf.gz;
+        bcftools filter --threads 32 -i 'FMT/GT="hom"' -O z -o ${filtered_masked%.*}.indel.homo.vcf.gz ${filtered_masked%.*}.indel.vcf.gz;
         echo ${filtered_masked%.*}.indel.homo.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Step 6/6 | Homo snp variants separation"
-        bcftools filter --threads 32 -i 'FMT/GT = "hom"' -O z -o ${filtered_masked%.*}.snp.homo.vcf.gz ${filtered_masked%.*}.snp.vcf.gz;
+        bcftools filter --threads 32 -i 'FMT/GT="hom"' -O z -o ${filtered_masked%.*}.snp.homo.vcf.gz ${filtered_masked%.*}.snp.vcf.gz;
         echo ${filtered_masked%.*}.snp.homo.vcf.gz >> samples.filtered.masked.all.txt;
 
         echo "Sample ${filtered_masked%%.*} | Done"
@@ -235,3 +205,40 @@ done
 python3 $TOOLS/Biocrutch/scripts/Visualization/draw_violinplots.py -i ${prefix_vcf}.violinplot.1mb.tab -o ${prefix_vcf}.violinplot.1mb.tab -w 1000000 --figure_height 9 --yticklist 0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7 --title "${species}" --ylabel "Гетерозиготные SNP/тыс п.н." --figure_width_per_sample 0.7 --rotation 70 --ymin 0 --ymax 7 --font-size 14 --figure_grid
 
 echo  $(date)" | Stage 7 | Visualization of genetic variants density in violin plot | Done"
+
+# Визуализация рохов -- нужно сделать
+# На файлах features.bed, которые получаются после отрисовки гетерозиготности:
+# python3 $TOOLS/Biocrutch/scripts/ROH/get_ROH_regions.py -i SAMPLE.snp.hetero.features.bed -o SAMPLE.snp.hetero.features.roh
+# далее визуализация на хромосомах через draw_features.py
+# потом отрисовка кумулятивных графиков, ноут есть в папке юпитер ноутбук на компе (нужно настроить)
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#sbatch -w orthrus-1 CVC_slurm.sh
+
+# Содержимое CVC_slurm.sh:
+
+##!/bin/bash -i
+##SBATCH --job-name=musput                                               # Job name
+##SBATCH --mail-type=END                                                 # Mail events
+##SBATCH --mail-user=a.totickov1@gmail.com                               # Where to send mail
+##SBATCH --cpus-per-task=32                                              # Number of CPU cores per task (max 32)
+##SBATCH --mem=256gb                                                     # Job memory request (max 256gb)
+##SBATCH --time=150:00:00                                                # Time limit hrs:min:sec
+##SBATCH --output=/path/to/varcall/logs/CVC_slurm.log
+##SBATCH --error=/path/to/varcall/logs/CVC_slurm.err
+#squeue; hostname; date;
+
+#conda activate varcall
+
+#cd /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/; pwd;
+
+#bash CVC.sh -w /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/assembly -f /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/assembly/mustela_putorius.ragtag.fasta -b /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/alignment/ -p /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/ploidy.sub12.file -s /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/sample.sub12.file -v musput.sub12.correct -m /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/TESTS/masks -o 'Mustela putorius' 2>&1 | tee logs/CVC.info
+
+#bash CVC_violinplot.sh -s /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musput/varcall/sample.sub12.file -v musput.sub12.correct -o 'Mustela putorius' 2>&1 | tee logs/CVC_violinplot.info
+
+#date;
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------

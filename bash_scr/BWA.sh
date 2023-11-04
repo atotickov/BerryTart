@@ -1,35 +1,6 @@
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------
-#sbatch -w orthrus-1 BWA_slurm.sh
-
-# Содержимое BWA_slurm.sh:
-
-##!/bin/bash -i
-##SBATCH --job-name=musnig                                               # Job name
-##SBATCH --mail-type=END                                                 # Mail events
-##SBATCH --mail-user=a.totickov1@gmail.com                               # Where to send mail
-##SBATCH --cpus-per-task=32                                              # Number of CPU cores per task (max 32)
-##SBATCH --mem=256gb                                                     # Job memory request (max 256gb)
-##SBATCH --time=150:00:00                                                # Time limit hrs:min:sec
-##SBATCH --output=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/logs/BWA_slurm.log
-##SBATCH --error=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/logs/BWA_slurm.err
-#squeue; hostname; date;
-
-#conda activate BWA; # bwa v.0.7.17-r1188, mosdepth v0.3.3
-
-#cd /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/; pwd;
-
-#bash BWA.sh -a /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/assembly/GCF_022355385.1_MUSNIG.SB6536_genomic.fna -s "SB7462sub12 SB6536sub12 SB8055sub12 SRR1508215sub12 SRR1508214sub12 SRR1508749sub12 SRR1508750sub12" -f /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/reads/filtered/12 2>&1 | tee logs/BWA.info
-
-#date;
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Содержимое BWA.sh:
-
-
 #!/bin/bash
 
-export PATH=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/bcftools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/samtools-1.18/bin:${PATH};
+export PATH=/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/bcftools-1.18/bin:/mnt/tank/scratch/skliver/common/mustelidae/atotik/variant_calling/samtools-1.18/bin:${PATH};
 export TOOLS="/nfs/home/atotikov/tools/";
 
 
@@ -57,7 +28,7 @@ while getopts 'w:a:s:f:' flag; do
 done
 
 
-
+#bwa index ${assembly};
 
 for i in "${samples[@]}"; do
         echo $(date)" | Sample ${i} | (1/7) | Align paired-end reads to genome assembly, sorting and marking duplicates";
@@ -81,4 +52,31 @@ for i in "${samples[@]}"; do
         echo $(date)" | Sample ${i} | (7/7) | Coverage visualization";
         python3 $TOOLS/MACE/scripts/draw_coverage.py --scaffold_column_name '#scaffold' --hide_track_label --window_column_name frame --coverage_column_name median -i mosdepth.${i}_1000000_windows_stats.csv -o ${i}.1Mb.track --subplots_adjust_left 0.12 --figure_width 12 -l "Sample ${i}: coverage (-w = 1mb)" -m $(cat mosdepth.${i}_whole_genome_stats.csv | sed -n 2p | awk '{print $2}') --window_size 1000000 --scaffold_length_file ${assembly_swol}/*.len --scaffold_white_list ${assembly_swol}/*.whitelist --scaffold_ordered_list ${assembly_swol}/*.orderlist --scaffold_syn_file ${assembly_swol}/*.syn --colormap jet --rounded;
 done
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#sbatch -w orthrus-1 BWA_slurm.sh
+
+# Содержимое BWA_slurm.sh:
+
+##!/bin/bash -i
+##SBATCH --job-name=musnig                                               # Job name
+##SBATCH --mail-type=END                                                 # Mail events
+##SBATCH --mail-user=a.totickov1@gmail.com                               # Where to send mail
+##SBATCH --cpus-per-task=32                                              # Number of CPU cores per task (max 32)
+##SBATCH --mem=256gb                                                     # Job memory request (max 256gb)
+##SBATCH --time=150:00:00                                                # Time limit hrs:min:sec
+##SBATCH --output=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/logs/BWA_slurm.log
+##SBATCH --error=/mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/logs/BWA_slurm.err
+#squeue; hostname; date;
+
+#conda activate BWA; # bwa v.0.7.17-r1188, mosdepth v0.3.3
+
+#cd /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/alignment/new/; pwd;
+
+#bash BWA.sh -a /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/assembly/GCF_022355385.1_MUSNIG.SB6536_genomic.fna -s "SB7462sub12 SB6536sub12 SB8055sub12 SRR1508215sub12 SRR1508214sub12 SRR1508749sub12 SRR1508750sub12" -f /mnt/tank/scratch/skliver/common/mustelidae/atotik/vc/musnig/reads/filtered/12 2>&1 | tee logs/BWA.info
+
+#date;
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
 

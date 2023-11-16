@@ -209,7 +209,11 @@ echo  $(date)" | Stage 7 | Visualization of genetic variants density in violin p
 # Визуализация рохов -- нужно сделать
 # На файлах features.bed, которые получаются после отрисовки гетерозиготности:
 # python3 $TOOLS/Biocrutch/scripts/ROH/get_ROH_regions.py -i SAMPLE.snp.hetero.features.bed -o SAMPLE.snp.hetero.features.roh
+# for i in *; do echo $i && python3 ~/tools/Biocrutch/scripts/ROH/get_ROH_regions.py -i $i -o ${i}.roh; done
 # далее визуализация на хромосомах через draw_features.py
+
+for i in *.roh; do echo $i && /nfs/home/atotikov/tools/MACE/scripts/draw_features.py -i $i -t bed -o ${i} --scaffold_length_file GCF_009829155.1_mMusErm1.Pri_genomic.len --scaffold_white_list GCF_009829155.1_mMusErm1.Pri_genomic.whitelist --hide_track_label --scaffold_syn_file GCF_009829155.1_mMusErm1.Pri_genomic.syn --syn_file_key_column 0 --syn_file_value_column 1 -z GCF_009829155.1_mMusErm1.Pri_genomic.orderlist --subplot_scale --rounded -l "${i}"; done
+
 # потом отрисовка кумулятивных графиков, ноут есть в папке юпитер ноутбук на компе (нужно настроить)
 
 

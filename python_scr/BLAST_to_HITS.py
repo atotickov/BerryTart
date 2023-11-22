@@ -27,6 +27,8 @@ def process_table(input_file, output_file):
                 clusters[cluster] = 1
                 all_clusters.append(cluster)
 
+    all_scaffolds = sorted(all_scaffolds)
+
     with open(output_file, 'w') as output:
         output.write('\t' + '\t'.join(all_scaffolds) + '\n')
         for cluster in all_clusters:

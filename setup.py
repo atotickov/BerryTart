@@ -5,7 +5,7 @@ from os.path import join, dirname
 from setuptools import setup, find_packages
 
 dependencies = ['scipy', 'numpy', 'pandas', 'matplotlib', 'biopython',
-                'lxml', 'beautifulsoup4', 'requests', 'gzip']
+                'lxml', 'beautifulsoup4', 'requests']
 
 setup(name='BerryTart',
       version='0.1',

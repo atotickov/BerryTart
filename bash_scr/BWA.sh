@@ -28,7 +28,7 @@ while getopts 'w:a:s:f:' flag; do
 done
 
 
-#bwa index ${assembly};
+bwa index ${assembly};
 
 for i in "${samples[@]}"; do
         echo $(date)" | Sample ${i} | (1/7) | Align paired-end reads to genome assembly, sorting and marking duplicates";
